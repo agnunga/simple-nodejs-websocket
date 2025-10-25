@@ -1,0 +1,27 @@
+{
+  "name": "websocket-multiplexing-server",
+  "version": "1.0.0",
+  "description": "WebSocket server with multiplexing support and interactive web interface",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "client": "node client.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "websocket",
+    "multiplexing",
+    "nodejs",
+    "express",
+    "real-time"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
