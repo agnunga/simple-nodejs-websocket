@@ -54,8 +54,12 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
         }
 
         .connection-info {
@@ -78,7 +82,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 20px;
             margin-bottom: 20px;
         }
@@ -346,6 +350,22 @@
                 <button class="success" onclick="sendPing()">Ping Server</button>
             </div>
         </div>
+
+        <div class="card">
+            <h2>✉️ Direct Message</h2>
+            <p style="color: #6b7280; font-size: 13px; margin-bottom: 15px;">
+                Send a private message to a specific connection ID (bypasses channels)
+            </p>
+            <div class="input-group">
+                <input type="number" id="directTargetId" placeholder="Target Connection ID (e.g., 2)" min="1">
+            </div>
+            <div class="input-group">
+                <textarea id="directMessageText" placeholder="Type your direct message..." rows="3"></textarea>
+            </div>
+            <div class="input-group">
+                <button onclick="sendDirectMessage()" style="background: #f59e0b;">Send Direct Message</button>
+            </div>
+        </div>
     </div>
 
     <div class="card full-width">
@@ -403,8 +423,15 @@
         };
 
         ws.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-            handleMessage(message);
+            console.log('[Frontend] Raw message received:', event.data);
+            try {
+                const message = JSON.parse(event.data);
+                console.log('[Frontend] Parsed message:', message);
+                handleMessage(message);
+            } catch (error) {
+                console.error('[Frontend] Error parsing message:', error);
+                logMessage('ERROR', 'Failed to parse message: ' + event.data, 'error');
+            }
         };
 
         ws.onclose = () => {
@@ -419,6 +446,8 @@
     }
 
     function handleMessage(message) {
+        console.log('[Frontend] Handling message type:', message.type);
+
         messageCount++;
         document.getElementById('messageCount').textContent = messageCount;
 
@@ -442,6 +471,7 @@
         switch (message.type) {
             case 'channel_message':
                 content = `[${message.channel}] From Connection ${message.connectionId}: ${JSON.stringify(message.data)}`;
+                console.log('[Frontend] Displaying channel message:', content);
                 break;
             case 'direct_message':
                 content = `From Connection ${message.from}: ${JSON.stringify(message.data)}`;
@@ -462,6 +492,7 @@
                 break;
             case 'heartbeat':
                 // Silent heartbeat - don't log
+                console.log('[Frontend] Heartbeat received (not displayed)');
                 return;
             case 'pong':
                 content = `Pong received (latency: ${document.getElementById('latency').textContent}ms)`;
@@ -470,6 +501,7 @@
                 content = JSON.stringify(message.data || message.message || message);
         }
 
+        console.log('[Frontend] About to log message:', typeDisplay, content);
         logMessage(typeDisplay, content, message.type);
     }
 
@@ -553,6 +585,25 @@
         });
         sentCount++;
         document.getElementById('sentCount').textContent = sentCount;
+    }
+
+    function sendDirectMessage() {
+        const targetId = parseInt(document.getElementById('directTargetId').value);
+        const text = document.getElementById('directMessageText').value.trim();
+
+        if (targetId && text) {
+            sendWsMessage({
+                type: 'direct',
+                targetId: targetId,
+                data: text
+            });
+            document.getElementById('directMessageText').value = '';
+            sentCount++;
+            document.getElementById('sentCount').textContent = sentCount;
+            logMessage('SENT', `Direct message to Connection ${targetId}: ${text}`, 'direct_message');
+        } else {
+            alert('Please enter both a target connection ID and a message');
+        }
     }
 
     function sendWsMessage(message) {
