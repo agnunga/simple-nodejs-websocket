@@ -441,21 +441,33 @@
 
         switch (message.type) {
             case 'channel_message':
-                content = `[${message.channel}] From ${message.connectionId}: ${JSON.stringify(message.data)}`;
+                content = `[${message.channel}] From Connection ${message.connectionId}: ${JSON.stringify(message.data)}`;
                 break;
             case 'direct_message':
-                content = `From ${message.from}: ${JSON.stringify(message.data)}`;
+                content = `From Connection ${message.from}: ${JSON.stringify(message.data)}`;
                 break;
             case 'subscribed':
+                content = `Successfully subscribed to channel: ${message.channel}`;
+                updateChannelSelect();
+                break;
             case 'unsubscribed':
-                content = `Channel: ${message.channel}`;
+                content = `Unsubscribed from channel: ${message.channel}`;
                 updateChannelSelect();
                 break;
             case 'broadcast':
                 content = `[${message.channel}] ${message.message}`;
                 break;
+            case 'connection':
+                content = `${message.message} (ID: ${message.connectionId})`;
+                break;
+            case 'heartbeat':
+                // Silent heartbeat - don't log
+                return;
+            case 'pong':
+                content = `Pong received (latency: ${document.getElementById('latency').textContent}ms)`;
+                break;
             default:
-                content = JSON.stringify(message.data || message.message || '');
+                content = JSON.stringify(message.data || message.message || message);
         }
 
         logMessage(typeDisplay, content, message.type);
@@ -553,6 +565,12 @@
 
     function logMessage(type, content, messageType = '') {
         const log = document.getElementById('messageLog');
+
+        // Clear "waiting" message on first real message
+        if (log.children.length === 1 && log.children[0].textContent.includes('Waiting for connection')) {
+            log.innerHTML = '';
+        }
+
         const item = document.createElement('div');
         item.className = `message-item ${messageType}`;
 

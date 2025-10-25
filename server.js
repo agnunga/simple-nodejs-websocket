@@ -81,24 +81,30 @@ wss.on('connection', (ws, req) => {
             switch (message.type) {
                 case 'subscribe':
                     // Subscribe to a channel
-                    connectionInfo.channels.add(message.channel);
-                    ws.send(JSON.stringify({
-                        type: 'subscribed',
-                        channel: message.channel,
-                        timestamp: Date.now()
-                    }));
-                    console.log(`[Multiplexing] Client ${connectionId} subscribed to ${message.channel}`);
+                    const conn = connections.get(connectionId);
+                    if (conn) {
+                        conn.channels.add(message.channel);
+                        ws.send(JSON.stringify({
+                            type: 'subscribed',
+                            channel: message.channel,
+                            timestamp: Date.now()
+                        }));
+                        console.log(`[Multiplexing] Client ${connectionId} subscribed to ${message.channel}. Active channels:`, Array.from(conn.channels));
+                    }
                     break;
 
                 case 'unsubscribe':
                     // Unsubscribe from a channel
-                    connectionInfo.channels.delete(message.channel);
-                    ws.send(JSON.stringify({
-                        type: 'unsubscribed',
-                        channel: message.channel,
-                        timestamp: Date.now()
-                    }));
-                    console.log(`[Multiplexing] Client ${connectionId} unsubscribed from ${message.channel}`);
+                    const connUnsub = connections.get(connectionId);
+                    if (connUnsub) {
+                        connUnsub.channels.delete(message.channel);
+                        ws.send(JSON.stringify({
+                            type: 'unsubscribed',
+                            channel: message.channel,
+                            timestamp: Date.now()
+                        }));
+                        console.log(`[Multiplexing] Client ${connectionId} unsubscribed from ${message.channel}. Active channels:`, Array.from(connUnsub.channels));
+                    }
                     break;
 
                 case 'message':
@@ -110,7 +116,7 @@ wss.on('connection', (ws, req) => {
                         connectionId,
                         data: message.data,
                         timestamp: Date.now()
-                    }, connectionId);
+                    }); // Don't exclude sender - they should see their own messages
                     break;
 
                 case 'direct':
@@ -168,15 +174,21 @@ wss.on('connection', (ws, req) => {
 // Broadcast to all connections subscribed to a channel (multiplexing)
 function broadcastToChannel(channel, message, excludeId = null) {
     let sent = 0;
+    let totalChecked = 0;
     connections.forEach((conn) => {
-        if (conn.id !== excludeId &&
-            conn.channels.has(channel) &&
-            conn.ws.readyState === WebSocket.OPEN) {
+        totalChecked++;
+        const isSubscribed = conn.channels.has(channel);
+        const isNotExcluded = conn.id !== excludeId;
+        const isOpen = conn.ws.readyState === WebSocket.OPEN;
+
+        console.log(`[Multiplexing Debug] Checking connection ${conn.id}: subscribed=${isSubscribed}, notExcluded=${isNotExcluded}, open=${isOpen}, channels=[${Array.from(conn.channels).join(', ')}]`);
+
+        if (isNotExcluded && isSubscribed && isOpen) {
             conn.ws.send(JSON.stringify(message));
             sent++;
         }
     });
-    console.log(`[Multiplexing] Broadcast to channel '${channel}': ${sent} recipients`);
+    console.log(`[Multiplexing] Broadcast to channel '${channel}': ${sent} recipients (checked ${totalChecked} connections)`);
     return sent;
 }
 
