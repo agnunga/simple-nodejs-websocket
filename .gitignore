@@ -1,0 +1,124 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+
+# Output directories
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.tmp/
+temp/
+.cache/
+coverage/
+
+# Serverless / Cloud build outputs
+.serverless/
+.vercel/
+.netlify/
+functions/.cache/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Compiled source maps
+*.map
+
+# TypeScript build artifacts
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Local development databases or data
+data/
+db/
+*.sqlite
+*.sqlite3
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# PM2 logs and dumps
+pids/
+*.pid
+*.seed
+*.pid.lock
+pm2.log
+pm2.pid
+
+# Lint / Formatter caches
+.eslintcache
+.stylelintcache
+.prettier_cache/
+
+# Optional: Ignore Next.js cache and build artifacts
+.next/
+out/
+.next/cache/
+
+# Optional: Ignore Prisma artifacts
+prisma/migrations/
+prisma/dev.db
+prisma/test.db
+
+# Optional: Ignore coverage and test results
+coverage/
+jest-html-reporters-*.html
+test-results/
+
+# Optional: Ignore VS Code settings if you prefer personal config
+.vscode/*
+
+# Optional: Ignore local secrets or configs
+secrets.json
+config.local.json
+credentials.json
+
+# Optional: Ignore temporary lock files
+*.lock
+*.lockb
+
+# Optional: Ignore macOS system files
+.AppleDouble
+.LSOverride
+Icon?
+__MACOSX/
+
+# Optional: Ignore local scripts or playground files
+scripts/dev/
+playground/
+scratch/
+notes/
+
