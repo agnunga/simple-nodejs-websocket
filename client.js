@@ -155,7 +155,8 @@ class MultiplexedWebSocketClient {
             console.log(`[Client] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
 
             setTimeout(() => {
-                this.connect().catch(() => {});
+                this.connect().catch(() => {
+                });
             }, delay);
         } else {
             console.log('[Client] Max reconnection attempts reached');

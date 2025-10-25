@@ -5,7 +5,7 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({server});
 
 // Serve static files
 app.use(express.static('public'));
@@ -26,7 +26,7 @@ app.get('/api/status', (req, res) => {
 });
 
 app.post('/api/broadcast', (req, res) => {
-    const { message, channel = 'default' } = req.body;
+    const {message, channel = 'default'} = req.body;
 
     let sent = 0;
     connections.forEach((conn) => {
@@ -41,7 +41,7 @@ app.post('/api/broadcast', (req, res) => {
         }
     });
 
-    res.json({ success: true, recipients: sent });
+    res.json({success: true, recipients: sent});
 });
 
 // WebSocket connection handler - implements multiplexing
